@@ -81,8 +81,8 @@ public class FreebloksRenderer implements GLSurfaceView.Renderer {
 	public synchronized void onDrawFrame(GL10 gl) {
 		final float camera_distance = zoom;
 		long t = System.currentTimeMillis();
-		float cameraAngle = model.board.getCameraAngle();
-		float boardAngle = model.board.mAngleY;
+		float boardAngle = (model.board.getBoardAngle());
+		float cameraAngle = -model.board.mAngleY;
 		
 		gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
 		gl.glEnableClientState(GL10.GL_NORMAL_ARRAY);
@@ -107,7 +107,7 @@ public class FreebloksRenderer implements GLSurfaceView.Renderer {
 		GLU.gluLookAt(gl, 
 				(float) (fixed_zoom/camera_distance*Math.sin(cameraAngle * Math.PI/180.0)*Math.cos(mAngleX*Math.PI/180.0)),
 				(float) (fixed_zoom/camera_distance*Math.sin(mAngleX*Math.PI/180.0)),
-				(float) (fixed_zoom/camera_distance*Math.cos(mAngleX*Math.PI/180.0)*Math.cos(-cameraAngle*Math.PI/180.0)),
+				(float) (fixed_zoom/camera_distance*Math.cos(-cameraAngle * Math.PI/180.0)*Math.cos(mAngleX*Math.PI/180.0)),
 				0.0f, 0.0f, 0.0f,
 				0.0f, 1.0f, 0.0f);
 		if (updateModelViewMatrix) synchronized(outputfar) {
@@ -126,8 +126,8 @@ public class FreebloksRenderer implements GLSurfaceView.Renderer {
 		/* render board */
 		gl.glDisable(GL10.GL_DEPTH_TEST);
 		
-		gl.glRotatef(boardAngle, 0, 1, 0);
 		backgroundRenderer.render(gl);
+		gl.glRotatef(boardAngle, 0, 1, 0);
 		board.renderBoard(gl, model.spiel, model.board.getShowSeedsPlayer());
 		
 		if (model.spiel == null)
@@ -176,12 +176,9 @@ public class FreebloksRenderer implements GLSurfaceView.Renderer {
 			}
 		}
 		gl.glDisable(GL10.GL_DEPTH_TEST);
-
-		gl.glRotatef(-boardAngle, 0, 1, 0);
+		gl.glRotatef(-boardAngle + cameraAngle, 0, 1, 0);
 
 		gl.glPushMatrix();
-		/* reverse the cameraAngle to always fix wheel in front of camera */
-		gl.glRotatef(cameraAngle, 0, 1, 0);
 		if (!model.vertical_layout)
 			gl.glRotatef(90.0f, 0, 1, 0);
 		model.wheel.render(this, gl);

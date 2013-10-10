@@ -23,7 +23,7 @@ public class CurrentStone implements ViewElement {
 	
 	Stone stone;
 	int current_color;
-	PointF pos = new PointF();
+	private PointF pos = new PointF();
 	boolean hasMoved; /* has the stone been moved since it was touched? */
 	boolean canCommit; /* is the stone commitable if it has not been moved? */
 	boolean isValid;
@@ -119,7 +119,7 @@ public class CurrentStone implements ViewElement {
 		gl.glTranslatef(
 				BoardRenderer.stone_size * (-(float)(model.spiel.m_field_size_x - 1) + 2.0f * pos.x + offset),
 				0,
-				BoardRenderer.stone_size * (-(float)(model.spiel.m_field_size_x - 1) + 2.0f * pos.y + offset));
+				-BoardRenderer.stone_size * (-(float)(model.spiel.m_field_size_x - 1) + 2.0f * pos.y + offset));
 		
 		/* STONE SHADOW */
 	    gl.glPushMatrix();
@@ -382,7 +382,7 @@ public class CurrentStone implements ViewElement {
 		return true;
 	}
 	
-	public boolean is_valid_turn(float x, float y) {
+	boolean is_valid_turn(float x, float y) {
 		if (model.spiel.is_valid_turn(stone, model.spiel.current_player(), (int)Math.floor(y + 0.5f), (int)Math.floor(x + 0.5f)) == Stone.FIELD_ALLOWED)
 			return true;
 		return false;
@@ -392,14 +392,20 @@ public class CurrentStone implements ViewElement {
 		boolean hasMoved = false;
 		if (!model.snapAid) {
 			hasMoved = moveTo(x, y);
-			isValid = is_valid_turn(x, y);
+			fieldPoint.x = x;
+			fieldPoint.y = y;
+			model.board.boardToUnified(fieldPoint);
+			isValid = is_valid_turn(fieldPoint.x, fieldPoint.y);
 			if (isValid && (hasMoved || forceSound)) {
 				if (!model.soundPool.play(model.soundPool.SOUND_CLICK3, 1.0f, 1.0f))
 					model.activity.vibrate(Global.VIBRATE_STONE_SNAP);
 			}
 			return hasMoved;
 		}
-		if (is_valid_turn(x, y)) {
+		fieldPoint.x = x;
+		fieldPoint.y = y;
+		model.board.boardToUnified(fieldPoint);
+		if (is_valid_turn(fieldPoint.x, fieldPoint.y)) {
 			isValid = true;
 			hasMoved = moveTo((float)Math.floor(x + 0.5f), (float)Math.floor(y + 0.5f));
 			if (hasMoved || forceSound) {
@@ -411,7 +417,10 @@ public class CurrentStone implements ViewElement {
 		for (int i = -1; i <= 1; i++)
 			for (int j = -1; j <= 1; j++)
 		{
-			if (is_valid_turn(x + i, y + j))
+			fieldPoint.x = x + i;
+			fieldPoint.y = y + j;
+			model.board.boardToUnified(fieldPoint);
+			if (is_valid_turn(fieldPoint.x, fieldPoint.y))
 			{
 				isValid = true;
 				hasMoved = moveTo((float)Math.floor(0.5f + x + i), (float)Math.floor(0.5f + y + j));
@@ -437,7 +446,6 @@ public class CurrentStone implements ViewElement {
 			int y = (int)Math.floor(0.5f + fieldPoint.y + stone_rel_y - stone.get_stone_size() / 2);
 			fieldPoint.x = x;
 			fieldPoint.y = y;
-			model.board.boardToUnified(fieldPoint);
 			if (!model.vertical_layout)
 				fieldPoint.y = model.spiel.m_field_size_x - fieldPoint.x - 1;
 			
@@ -446,13 +454,16 @@ public class CurrentStone implements ViewElement {
 				status = Status.IDLE;
 				stone = null;
 			} else	if (canCommit && !hasMoved) {
-				if (model.activity.commitCurrentStone(stone, (int)Math.floor(pos.x + 0.5f), (int)Math.floor(pos.y + 0.5f))) {
+				fieldPoint.x = pos.x;
+				fieldPoint.y = pos.y;
+				model.board.boardToUnified(fieldPoint);
+				if (model.activity.commitCurrentStone(stone, (int)Math.floor(fieldPoint.x + 0.5f), (int)Math.floor(fieldPoint.y + 0.5f))) {
 					status = Status.IDLE;
 					stone = null;
 					model.wheel.setCurrentStone(null);
 				}
 			} else if (hasMoved) {
-				snap(x, y, false);
+				snap(pos.x, pos.y, false);
 			}
 		}
 		if (status == Status.ROTATING) {
@@ -503,12 +514,16 @@ public class CurrentStone implements ViewElement {
 		stone_rel_y = 0;
 		
 		if (fieldPoint != null) {
-			int x = (int)Math.floor(0.5f + fieldPoint.x + stone_rel_x - stone.get_stone_size() / 2);
-			int y = (int)Math.floor(0.5f + fieldPoint.y + stone_rel_y - stone.get_stone_size() / 2);
+			fieldPoint.x = (int)Math.floor(0.5f + fieldPoint.x + stone_rel_x - stone.get_stone_size() / 2);
+			fieldPoint.y = (int)Math.floor(0.5f + fieldPoint.y + stone_rel_y - stone.get_stone_size() / 2);
 	
-			moveTo(x, y);
+			moveTo(fieldPoint.x, fieldPoint.y);
 		}
-		isValid = is_valid_turn((int)pos.x, (int)pos.y);
+		fieldPoint.x = pos.x;
+		fieldPoint.y = pos.y;
+		model.board.boardToUnified(fieldPoint);
+
+		isValid = is_valid_turn((int)fieldPoint.x, (int)fieldPoint.y);
 	}
 
 	@Override

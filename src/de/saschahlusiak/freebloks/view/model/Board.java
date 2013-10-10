@@ -1,10 +1,7 @@
 package de.saschahlusiak.freebloks.view.model;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import de.saschahlusiak.freebloks.controller.Spielleiter;
 import de.saschahlusiak.freebloks.view.BoardRenderer;
-import de.saschahlusiak.freebloks.view.FreebloksRenderer;
 import android.graphics.PointF;
 
 public class Board implements ViewElement {
@@ -22,8 +19,8 @@ public class Board implements ViewElement {
 	}
 
 	/**
-	 * Converts a point from model coordinates to (non-uniformed) board coordinates.
-	 * The top-left corner is 0/0, the blue starting point is 0/19
+	 * Converts a point from model coordinates to board coordinates.
+	 * The top-bottom corner is always 0/0
 	 * @param point
 	 * @return point
 	 */
@@ -32,7 +29,7 @@ public class Board implements ViewElement {
 		point.y = point.y / (BoardRenderer.stone_size * 2.0f);
 		
 		point.x = point.x + 0.5f * (float)(model.spiel.m_field_size_x - 1);
-		point.y = point.y + 0.5f * (float)(model.spiel.m_field_size_y - 1);
+		point.y = 0.5f * (float)(model.spiel.m_field_size_y - 1) - point.y;
 
 		return point;
 	}
@@ -70,10 +67,10 @@ public class Board implements ViewElement {
 	/**
 	 * @return the base angle for the camera, to focus on the center player
 	 */
-	public float getCameraAngle() {
+	public float getBoardAngle() {
 		if (centerPlayer < 0)
 			return 0.0f;
-		return -90.0f * (float)centerPlayer;
+		return 90.0f * (float)centerPlayer;
 	}
 	
 	int lastDetailsPlayer = -1;

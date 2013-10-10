@@ -124,7 +124,6 @@ public class Wheel implements ViewElement {
 		tmp.x = m.x;
 		tmp.y = m.y;
 		model.board.modelToBoard(tmp);
-		model.board.boardToUnified(tmp);
 		if (!model.vertical_layout) {
 			float t = tmp.x;
 			tmp.x = tmp.y;
@@ -182,7 +181,7 @@ public class Wheel implements ViewElement {
 								tmp.x = m.x;
 								tmp.y = m.y;
 								model.board.modelToBoard(tmp);
-								
+
 								if (model.soundPool != null && !model.soundPool.play(model.soundPool.SOUND_CLICK2, 1.0f, 1))
 									model.activity.vibrate(Global.VIBRATE_START_DRAGGING);
 								showStone(highlightStone.get_number());
@@ -211,8 +210,7 @@ public class Wheel implements ViewElement {
 		tmp.x = m.x;
 		tmp.y = m.y;
 		model.board.modelToBoard(tmp);
-		model.board.boardToUnified(tmp);
-		
+
 		if (!model.vertical_layout) {
 			float t = tmp.x;
 			tmp.x = tmp.y;
@@ -244,6 +242,7 @@ public class Wheel implements ViewElement {
 			tmp.x = m.x;
 			tmp.y = m.y;
 			model.board.modelToBoard(tmp);
+
 			showStone(highlightStone.get_number());
 			if (model.currentStone.stone != highlightStone)
 				model.soundPool.play(model.soundPool.SOUND_CLICK2, 1.0f, 1);
@@ -308,7 +307,7 @@ public class Wheel implements ViewElement {
 				gl.glPushMatrix();
 				gl.glTranslatef(x, 0, z);
 
-				gl.glRotatef(90 * model.board.centerPlayer, 0, 1, 0);
+				gl.glRotatef(90 * currentPlayer, 0, 1, 0);
 				if (!model.vertical_layout)
 					gl.glRotatef(-90.0f, 0, 1, 0);
 
