@@ -63,6 +63,7 @@ import android.os.Parcel;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -78,6 +79,7 @@ import android.view.animation.Animation;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -123,6 +125,9 @@ public class FreebloksActivity extends BaseGameActivity implements ActivityInter
 	
 	ImageButton chatButton;
 	ArrayList<ChatEntry> chatEntries;
+	
+	View mDrawer;
+	DrawerLayout mDrawerLayout;
 	
 	class ConnectTask extends AsyncTask<String,Void,String> {
 		ProgressDialog progress;
@@ -248,6 +253,8 @@ public class FreebloksActivity extends BaseGameActivity implements ActivityInter
 				hasActionBar = !viewConfig.hasPermanentMenuKey();
 			}
 		}
+		hasActionBar = true;
+		
 		if (!hasActionBar)
 			requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -261,6 +268,11 @@ public class FreebloksActivity extends BaseGameActivity implements ActivityInter
 		}
 		
 		setContentView(R.layout.main_3d);
+		
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawer = findViewById(R.id.left_drawer);
+        
+
 		
 		prefs = PreferenceManager.getDefaultSharedPreferences(FreebloksActivity.this);
 		notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
